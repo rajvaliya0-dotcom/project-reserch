@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 import requests
 from supabase import create_client, Client
 
@@ -26,9 +26,8 @@ def send_telegram_alert(message):
 
 def fetch_and_store_nifty_data():
   """Upstox se Nifty 50 ka data fetch karke Supabase mein store karta hai."""
-  # Upstox instrument key for Nifty 50 Index is 'NSE_Index|Nifty 50'
-  # Upstox v2 historical endpoint structure requires the instrument key in the URL
-  url = "https://api.upstox.com/v2/historical-candle/NSE_Index%7CNifty%2050/1minute"
+  # Upstox v2 historical candle endpoint using standard instrument key for Nifty 50
+  url = "https://api.upstox.com/v2/historical-candle/NSE_Index|Nifty%2050/1minute"
 
   headers = {"Accept": "application/json", "Authorization": f"Bearer {UPSTOX_ACCESS_TOKEN}"}
 
