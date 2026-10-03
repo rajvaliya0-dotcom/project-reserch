@@ -1,4 +1,5 @@
 import os
+from datetime import datetime, timedelta
 import requests
 from supabase import create_client, Client
 
@@ -24,10 +25,11 @@ def send_telegram_alert(message):
 
 
 def fetch_and_store_nifty_data():
-  """Upstox se Nifty 50 1-minute data fetch karke Supabase mein store karta hai."""
-  url = (
-      "https://api.upstox.com/v2/historical-candle/nse_index/Nifty%2050/1minute"
-  )
+  """Upstox se Nifty 50 ka data fetch karke Supabase mein store karta hai."""
+  # Upstox instrument key for Nifty 50 Index is 'NSE_Index|Nifty 50'
+  # Upstox v2 historical endpoint structure requires the instrument key in the URL
+  url = "https://api.upstox.com/v2/historical-candle/NSE_Index%7CNifty%2050/1minute"
+
   headers = {"Accept": "application/json", "Authorization": f"Bearer {UPSTOX_ACCESS_TOKEN}"}
 
   try:
@@ -47,7 +49,6 @@ def fetch_and_store_nifty_data():
             "close": close_p,
             "volume": volume,
         }
-        # Supabase table mein insert
         supabase.table("nifty_data").insert(row_data).execute()
         success_count += 1
 
@@ -55,7 +56,7 @@ def fetch_and_store_nifty_data():
       print(msg)
       send_telegram_alert(msg)
     else:
-      error_msg = f"❌ Upstox API Error: Status {response.status_code}"
+      error_msg = f"❌ Upstox API Error: Status {response.status_code} - {response.text}"
       print(error_msg)
       send_telegram_alert(error_msg)
   except Exception as e:
@@ -67,4 +68,4 @@ def fetch_and_store_nifty_data():
 if __name__ == "__main__":
   print("Starting Nifty 50 Data Sync Pipeline...")
   fetch_and_store_nifty_data()
-    
+  
